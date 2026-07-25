@@ -23,6 +23,7 @@ struct ToggleSwitchView: View {
         }
         .frame(width: 51, height: 31)
         .onTapGesture { play() }
+        .sensoryFeedback(.impact(weight: .light), trigger: isOn)
     }
 
     private func play() {

@@ -29,6 +29,9 @@ struct DrawnCheckmarkView: View {
             .scaleEffect(scale)
             .contentShape(Rectangle())
             .onTapGesture { play() }
+            .sensoryFeedback(trigger: trimEnd) { _, newValue in
+                newValue == 1 ? .success : nil
+            }
     }
 
     private func play() {

@@ -33,6 +33,7 @@ struct SlidingSegmentPillView: View {
         }
         .padding(4)
         .background(Color(.systemGray5), in: Capsule())
+        .sensoryFeedback(.selection, trigger: selection)
     }
 
     private func select(_ index: Int) {

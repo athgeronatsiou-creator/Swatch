@@ -16,6 +16,7 @@ struct IconMorphView: View {
             .foregroundStyle(.tint)
             .contentTransition(.symbolEffect(.replace))
             .onTapGesture { play() }
+            .sensoryFeedback(.impact(weight: .light), trigger: isPlaying)
     }
 
     private func play() {

@@ -14,6 +14,7 @@ An iOS app cataloguing UI micro-interactions, each rendered live in SwiftUI, for
 4. **Stock iOS components only, styled with iOS 26 Liquid Glass.** System typography, semantic colors, standard navigation (`NavigationStack`, `TabView`). No custom chrome — but "stock" now means the current system look: use SwiftUI's `.glassEffect()` modifier and `GlassEffectContainer` on toolbar buttons, the tab bar, and floating controls, rather than plain fills or hand-rolled opacity/blur. Tab bar should read as a floating pill, not a flush bottom bar. If `.glassEffect()` isn't available or behaves unexpectedly, say so rather than approximating it with manual opacity — an approximation looks similar but won't respond to content/light the way the real material does.
 5. **No SwiftData, no CoreData, no backend, no network calls.** Favourites are a `Set<String>` of motion IDs in `UserDefaults`. Nothing more.
 6. **Portrait only, iPhone only, light mode is the tested target.** Don't build for iPad, landscape, or dark mode — don't deliberately break dark mode either, just don't spend effort on it.
+7. **Haptic feedback on every interactive trigger.** Use SwiftUI's `.sensoryFeedback()` modifier bound to each control's own state change — never a manual `UIImpactFeedbackGenerator` call. Match the feedback type to what the motion represents rather than reusing the same one everywhere.
 
 ## Working style
 

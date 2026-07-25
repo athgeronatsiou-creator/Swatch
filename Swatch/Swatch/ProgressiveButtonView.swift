@@ -31,6 +31,13 @@ struct ProgressiveButtonView: View {
         .frame(width: width, height: 44)
         .background(stage == .success ? Color.green : Color.accentColor, in: Capsule())
         .onTapGesture { play() }
+        .sensoryFeedback(trigger: stage) { _, newValue in
+            switch newValue {
+            case .loading: .impact(weight: .light)
+            case .success: .success
+            case .idle: nil
+            }
+        }
     }
 
     private var width: CGFloat {

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PressScaleView: View {
     @State private var scale = 1.0
+    @State private var isPressed = false
 
     var body: some View {
         Image(systemName: "hand.tap.fill")
@@ -16,9 +17,11 @@ struct PressScaleView: View {
             .foregroundStyle(.tint)
             .scaleEffect(scale)
             .onTapGesture { play() }
+            .sensoryFeedback(.impact(weight: .light), trigger: isPressed)
     }
 
     private func play() {
+        isPressed.toggle()
         scale = 0
         withAnimation(Motion.pressScale) {
             scale = 1

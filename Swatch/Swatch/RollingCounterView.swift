@@ -16,6 +16,7 @@ struct RollingCounterView: View {
             .foregroundStyle(.tint)
             .contentTransition(.numericText())
             .onTapGesture { play() }
+            .sensoryFeedback(.selection, trigger: count)
     }
 
     private func play() {

@@ -16,6 +16,9 @@ struct LikeBurstView: View {
             .foregroundStyle(isLiked ? .red : .secondary)
             .scaleEffect(isLiked ? 1 : 0.8)
             .onTapGesture { play() }
+            .sensoryFeedback(trigger: isLiked) { _, newValue in
+                newValue ? .success : .impact(weight: .light)
+            }
     }
 
     private func play() {
