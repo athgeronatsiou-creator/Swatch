@@ -22,16 +22,21 @@ struct DrawnCheckmarkView: View {
     @State private var scale = 1.0
 
     var body: some View {
-        CheckmarkShape()
-            .trim(from: 0, to: trimEnd)
-            .stroke(.tint, style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round))
-            .frame(width: 80, height: 80)
-            .scaleEffect(scale)
-            .contentShape(Rectangle())
-            .onTapGesture { play() }
-            .sensoryFeedback(trigger: trimEnd) { _, newValue in
-                newValue == 1 ? .success : nil
-            }
+        ZStack {
+            CheckmarkShape()
+                .stroke(Color(.systemGray4), style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round))
+
+            CheckmarkShape()
+                .trim(from: 0, to: trimEnd)
+                .stroke(.tint, style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round))
+        }
+        .frame(width: 80, height: 80)
+        .scaleEffect(scale)
+        .contentShape(Rectangle())
+        .onTapGesture { play() }
+        .sensoryFeedback(trigger: trimEnd) { _, newValue in
+            newValue == 1 ? .success : nil
+        }
     }
 
     private func play() {

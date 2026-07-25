@@ -32,4 +32,26 @@ enum Motion {
 
     // Progressive button: width and label morph between stages.
     static let progressiveButton = Animation.spring(response: 0.4, dampingFraction: 0.75)
+
+    // Loading category: shared idle/loading/complete state-machine transition.
+    static let loadStageChange = Animation.spring(response: 0.4, dampingFraction: 0.75)
+
+    // Skeleton shimmer: highlight sweeps across the placeholder, looping while "loading".
+    static let shimmerSweep = Animation.linear(duration: 1.1).repeatForever(autoreverses: false)
+
+    // Spinner: constant rotation while "loading".
+    static let spinnerRotate = Animation.linear(duration: 0.9).repeatForever(autoreverses: false)
+
+    // Progress bar fill: width eases to full over the simulated load duration.
+    static let progressBarFill = Animation.easeInOut(duration: 1.4)
+
+    // Swipe to delete: reveal snaps open/closed; the row itself eases out on release past threshold.
+    static let swipeSnap = Animation.spring(response: 0.35, dampingFraction: 0.8)
+    static let swipeRemove = Animation.easeIn(duration: 0.25)
+
+    // Pull to refresh: refreshed content eases in once the simulated fetch completes.
+    static let refreshContentUpdate = Animation.easeOut(duration: 0.3)
+
+    // Modal presentation: sheet content fades and scales in once the sheet settles.
+    static let modalContentReveal = Animation.spring(response: 0.4, dampingFraction: 0.8)
 }

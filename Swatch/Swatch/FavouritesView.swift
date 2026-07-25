@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FavouritesView: View {
     @EnvironmentObject private var favorites: FavoritesStore
+    @Namespace private var zoomNamespace
 
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
@@ -33,6 +34,7 @@ struct FavouritesView: View {
                                     MotionCardView(item: item, isFavorite: true)
                                 }
                                 .buttonStyle(.plain)
+                                .matchedTransitionSource(id: item.id, in: zoomNamespace)
                             }
                         }
                         .padding()
@@ -41,7 +43,12 @@ struct FavouritesView: View {
             }
             .navigationTitle("Favourites")
             .navigationDestination(for: MotionItem.self) { item in
-                DetailView(item: item)
+                if item.kind == .sharedElementPush {
+                    DetailView(item: item)
+                        .navigationTransition(.zoom(sourceID: item.id, in: zoomNamespace))
+                } else {
+                    DetailView(item: item)
+                }
             }
         }
     }

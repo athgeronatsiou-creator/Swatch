@@ -75,6 +75,22 @@ struct DetailView: View {
             RollingCounterView()
         case .progressiveButton:
             ProgressiveButtonView()
+        case .skeletonShimmer:
+            SkeletonShimmerView()
+        case .spinner:
+            SpinnerView()
+        case .progressBarFill:
+            ProgressBarFillView()
+        case .swipeToDelete:
+            SwipeToDeleteView()
+        case .pullToRefresh:
+            PullToRefreshView()
+        case .dragToReorder:
+            DragToReorderView()
+        case .modalPresentation:
+            ModalPresentationView()
+        case .sharedElementPush:
+            SharedElementPushView()
         }
     }
 
@@ -88,6 +104,14 @@ struct DetailView: View {
         case .slidingSegmentPill: "Tap a segment to select"
         case .rollingCounter: "Tap to count"
         case .progressiveButton: "Tap to submit"
+        case .skeletonShimmer: "Tap to simulate loading"
+        case .spinner: "Tap to simulate loading"
+        case .progressBarFill: "Tap to simulate loading"
+        case .swipeToDelete: "Swipe left to delete"
+        case .pullToRefresh: "Pull down to refresh"
+        case .dragToReorder: "Drag a row to reorder"
+        case .modalPresentation: "Tap to present"
+        case .sharedElementPush: "Go back to watch it happen in reverse"
         }
     }
 }

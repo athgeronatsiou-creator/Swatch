@@ -16,6 +16,14 @@ enum MotionKind: Hashable {
     case slidingSegmentPill
     case rollingCounter
     case progressiveButton
+    case skeletonShimmer
+    case spinner
+    case progressBarFill
+    case swipeToDelete
+    case pullToRefresh
+    case dragToReorder
+    case modalPresentation
+    case sharedElementPush
 }
 
 struct MotionItem: Identifiable, Hashable {

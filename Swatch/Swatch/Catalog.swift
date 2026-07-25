@@ -81,5 +81,77 @@ enum Catalog {
             conceptNote: "state machine · idle → loading → success",
             kind: .progressiveButton
         ),
+        MotionItem(
+            id: "skeleton-shimmer",
+            title: "Skeleton shimmer",
+            category: "Loading",
+            symbolName: "rectangle.dashed",
+            description: "A placeholder that moves reads as 'still working' — a static one reads as broken.",
+            conceptNote: "gradient sweep · linear 1.1s · repeatForever",
+            kind: .skeletonShimmer
+        ),
+        MotionItem(
+            id: "spinner",
+            title: "Spinner",
+            category: "Loading",
+            symbolName: "arrow.clockwise",
+            description: "No progress to report yet, so the motion itself is the only signal that something is happening.",
+            conceptNote: "rotationEffect · linear 0.9s · repeatForever",
+            kind: .spinner
+        ),
+        MotionItem(
+            id: "progress-bar-fill",
+            title: "Progress bar fill",
+            category: "Loading",
+            symbolName: "gauge",
+            description: "Once you can report real progress, showing it beats a generic spinner every time.",
+            conceptNote: "width animation · easeInOut 1.4s",
+            kind: .progressBarFill
+        ),
+        MotionItem(
+            id: "swipe-to-delete",
+            title: "Swipe to delete",
+            category: "Gesture",
+            symbolName: "trash.fill",
+            description: "The reveal has to track your finger exactly, or the gesture stops feeling direct.",
+            conceptNote: "DragGesture · translation-driven offset",
+            kind: .swipeToDelete
+        ),
+        MotionItem(
+            id: "pull-to-refresh",
+            title: "Pull to refresh",
+            category: "Gesture",
+            symbolName: "arrow.down.circle",
+            description: "Built into List and ScrollView — the whole interaction ships for one modifier.",
+            conceptNote: "refreshable · system-driven",
+            kind: .pullToRefresh
+        ),
+        MotionItem(
+            id: "drag-to-reorder",
+            title: "Drag to reorder",
+            category: "Gesture",
+            symbolName: "line.3.horizontal",
+            description: "The list makes room before you let go, not after.",
+            conceptNote: "onMove · List edit mode",
+            kind: .dragToReorder
+        ),
+        MotionItem(
+            id: "modal-presentation",
+            title: "Modal presentation",
+            category: "Transition",
+            symbolName: "square.on.square",
+            description: "A sheet says 'this is temporary, dismiss whenever' just by how it arrives.",
+            conceptNote: "sheet · content transition on appear",
+            kind: .modalPresentation
+        ),
+        MotionItem(
+            id: "shared-element-push",
+            title: "Shared-element push",
+            category: "Transition",
+            symbolName: "arrow.up.left.and.arrow.down.right",
+            description: "The card doesn't disappear and get replaced by the next screen — it grows into it.",
+            conceptNote: "navigationTransition(.zoom) · shared namespace",
+            kind: .sharedElementPush
+        ),
     ]
 }
