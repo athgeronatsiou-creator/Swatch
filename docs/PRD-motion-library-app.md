@@ -256,7 +256,7 @@ Each is deferred with a reason recorded in the BRD. If one starts to feel essent
 1. ~~App name.~~ — **Resolved: Swatch.** Xcode project name will be `Swatch`, bundle identifier `com.<yourname>.swatch`
 2. ~~Category labels.~~ — **Resolved:** "Feedback", "State change", "Reveal". Sentence case, per iOS convention
 3. ~~Card poster treatment.~~ — **Resolved:** SF Symbol on a tinted panel. Chosen partly because it requires no asset production, which supports F6
-4. **Stretch items.** Confirm whether #9 and #10 stay on the list or are cut now
+4. ~~Stretch items.~~ — **Resolved:** kept on the list, not cut. The 8-minimum (BRD success criterion 2) is already met; #9 (Radial reveal) and #10 (Staggered list reveal) remain optional, pick-up-anytime sessions with no pressure to build them
 
 ---
 

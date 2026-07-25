@@ -27,4 +27,6 @@ An iOS app cataloguing UI micro-interactions, each rendered live in SwiftUI, for
 Check `docs/PRD-motion-library-app.md` §9 (Build Sequence) for which session-numbered milestone is next. Update this file's "Current state" note as sessions complete, so future sessions don't need to be re-explained from scratch.
 
 <!-- Update below as you progress -->
-Last completed: Session 4 — first animation (press scale) implemented on DetailView.
+Last completed: Session 9+ — app is functionally complete end to end (Library grid, generic Detail shell, Favourites + empty state, two-tab TabView root). Favourites persistence verified via genuine force-quit + relaunch (F5). Contract test (F6) proven repeatedly. 8 of 8 minimum animations shipped: Press scale, Toggle switch, Like burst, Drawn checkmark, Icon morph, Sliding segment pill, Rolling counter, Progressive button. Custom accent color set (#6069CA, universal). Stretch items #9 (Radial reveal) and #10 (Staggered list reveal) remain optional — see PRD Open Decision #4.
+
+Next up if continuing: pick up #9/#10, or move to the PRD's final step (screen recording on a real device, README, repo tidy).
