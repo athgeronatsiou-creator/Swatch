@@ -17,6 +17,7 @@ struct ContentView: View {
                 Text("Hey girlies!")
 
                 NavigationLink("View Detail", destination: DetailView())
+                NavigationLink("View Toggle Switch", destination: ToggleSwitchView())
             }
             .padding(30)
         }
