@@ -16,9 +16,10 @@ struct DetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                item.stage(replayTrigger)
+                stageView
                     .frame(maxWidth: .infinity)
                     .frame(height: 220)
+                    .clipped()
                     .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 28))
 
                 Button {
@@ -62,6 +63,28 @@ struct DetailView: View {
         .task {
             try? await Task.sleep(for: .milliseconds(400))
             replayTrigger += 1
+        }
+    }
+
+    @ViewBuilder
+    private var stageView: some View {
+        switch item.kind {
+        case .pressScale:
+            PressScaleView(replayTrigger: replayTrigger)
+        case .toggleSwitch:
+            ToggleSwitchView(replayTrigger: replayTrigger)
+        case .likeBurst:
+            LikeBurstView(replayTrigger: replayTrigger)
+        case .drawnCheckmark:
+            DrawnCheckmarkView(replayTrigger: replayTrigger)
+        case .iconMorph:
+            IconMorphView(replayTrigger: replayTrigger)
+        case .slidingSegmentPill:
+            SlidingSegmentPillView(replayTrigger: replayTrigger)
+        case .rollingCounter:
+            RollingCounterView(replayTrigger: replayTrigger)
+        case .progressiveButton:
+            ProgressiveButtonView(replayTrigger: replayTrigger)
         }
     }
 }

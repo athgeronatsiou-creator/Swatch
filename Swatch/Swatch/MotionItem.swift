@@ -5,7 +5,18 @@
 //  Created by Athina Geronatsiou on 25/7/26.
 //
 
-import SwiftUI
+import Foundation
+
+enum MotionKind: Hashable {
+    case pressScale
+    case toggleSwitch
+    case likeBurst
+    case drawnCheckmark
+    case iconMorph
+    case slidingSegmentPill
+    case rollingCounter
+    case progressiveButton
+}
 
 struct MotionItem: Identifiable, Hashable {
     let id: String
@@ -14,13 +25,5 @@ struct MotionItem: Identifiable, Hashable {
     let symbolName: String
     let description: String
     let conceptNote: String
-    let stage: (_ replayTrigger: Int) -> AnyView
-
-    static func == (lhs: MotionItem, rhs: MotionItem) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
+    let kind: MotionKind
 }
