@@ -8,19 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        NavigationStack {
-            VStack {
-                Image(systemName: "heart")
-                    .imageScale(.large)
-                    .foregroundStyle(.tint)
-                Text("Hey girlies!")
+    @StateObject private var favorites = FavoritesStore()
 
-                NavigationLink("View Detail", destination: DetailView())
-                NavigationLink("View Toggle Switch", destination: ToggleSwitchView())
+    var body: some View {
+        TabView {
+            Tab("Library", systemImage: "square.grid.2x2") {
+                LibraryView()
             }
-            .padding(30)
+            Tab("Favourites", systemImage: "heart") {
+                FavouritesView()
+            }
         }
+        .environmentObject(favorites)
     }
 }
 

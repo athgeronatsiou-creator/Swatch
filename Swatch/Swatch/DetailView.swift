@@ -8,29 +8,67 @@
 import SwiftUI
 
 struct DetailView: View {
-    @State private var iconScale = 0.0
+    let item: MotionItem
+
+    @EnvironmentObject private var favorites: FavoritesStore
+    @State private var replayTrigger = 0
 
     var body: some View {
-        VStack(spacing: 24) {
-            Image(systemName: "heart")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-                .scaleEffect(iconScale)
-                .onAppear { play() }
+        ScrollView {
+            VStack(spacing: 24) {
+                item.stage(replayTrigger)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 220)
+                    .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 28))
 
-            Button("Replay", action: play)
+                Button {
+                    replayTrigger += 1
+                } label: {
+                    Label("Replay", systemImage: "arrow.clockwise")
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                }
+                .glassEffect()
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(item.title)
+                        .font(.title2.bold())
+                    Text(item.category.uppercased())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(item.description)
+                        .font(.body)
+                    Text(item.conceptNote)
+                        .font(.system(.caption, design: .monospaced))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(.tertiarySystemBackground), in: Capsule())
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding()
         }
-        .padding(30)
-    }
-
-    private func play() {
-        iconScale = 0
-        withAnimation(Motion.pressScale) {
-            iconScale = 1
+        .navigationTitle(item.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    favorites.toggle(item.id)
+                } label: {
+                    Image(systemName: favorites.contains(item.id) ? "heart.fill" : "heart")
+                }
+            }
+        }
+        .task {
+            try? await Task.sleep(for: .milliseconds(400))
+            replayTrigger += 1
         }
     }
 }
 
 #Preview {
-    DetailView()
+    NavigationStack {
+        DetailView(item: Catalog.all[0])
+            .environmentObject(FavoritesStore())
+    }
 }
