@@ -10,9 +10,10 @@ An iOS app cataloguing UI micro-interactions, each rendered live in SwiftUI, for
 
 1. **One animation, one file.** Every motion in the catalogue gets its own SwiftUI file. Adding a new animation must never require editing an existing animation's file. This is the single most important architectural constraint in the project (PRD F6).
 2. **No third-party packages.** Native SwiftUI only. The dev machine has 8GB RAM — dependency resolution and larger builds are genuinely costly here, not just a preference.
-3. **Stock iOS components only.** System fonts, SF Symbols, semantic colors, standard navigation (`NavigationStack`, `TabView`). No custom chrome. The motion is the only thing that should stand out on screen.
-4. **No SwiftData, no CoreData, no backend, no network calls.** Favourites are a `Set<String>` of motion IDs in `UserDefaults`. Nothing more.
-5. **Portrait only, iPhone only, light mode is the tested target.** Don't build for iPad, landscape, or dark mode — don't deliberately break dark mode either, just don't spend effort on it.
+3. **Icons come from SF Symbols only.** Use `Image(systemName:)` with Apple's built-in symbol names exclusively — no custom icon assets, no third-party icon sets, no hand-drawn SVGs. If a suitable SF Symbol doesn't exist for something, say so and suggest the closest match rather than substituting a custom asset. This keeps the catalogue's "add one entry, no asset production" property intact (F6) and matches P3 in the PRD.
+4. **Stock iOS components only, styled with iOS 26 Liquid Glass.** System typography, semantic colors, standard navigation (`NavigationStack`, `TabView`). No custom chrome — but "stock" now means the current system look: use SwiftUI's `.glassEffect()` modifier and `GlassEffectContainer` on toolbar buttons, the tab bar, and floating controls, rather than plain fills or hand-rolled opacity/blur. Tab bar should read as a floating pill, not a flush bottom bar. If `.glassEffect()` isn't available or behaves unexpectedly, say so rather than approximating it with manual opacity — an approximation looks similar but won't respond to content/light the way the real material does.
+5. **No SwiftData, no CoreData, no backend, no network calls.** Favourites are a `Set<String>` of motion IDs in `UserDefaults`. Nothing more.
+6. **Portrait only, iPhone only, light mode is the tested target.** Don't build for iPad, landscape, or dark mode — don't deliberately break dark mode either, just don't spend effort on it.
 
 ## Working style
 
