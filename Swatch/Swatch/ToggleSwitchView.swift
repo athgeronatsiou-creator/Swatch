@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ToggleSwitchView: View {
-    var replayTrigger: Int = 0
     @State private var isOn = false
 
     var body: some View {
@@ -23,13 +22,12 @@ struct ToggleSwitchView: View {
                 .shadow(radius: 1)
         }
         .frame(width: 51, height: 31)
-        .onChange(of: replayTrigger) { _, _ in play() }
+        .onTapGesture { play() }
     }
 
     private func play() {
-        isOn = false
         withAnimation(Motion.toggleSwitch) {
-            isOn = true
+            isOn.toggle()
         }
     }
 }

@@ -11,7 +11,6 @@ struct DetailView: View {
     let item: MotionItem
 
     @EnvironmentObject private var favorites: FavoritesStore
-    @State private var replayTrigger = 0
 
     var body: some View {
         ScrollView {
@@ -22,14 +21,9 @@ struct DetailView: View {
                     .clipped()
                     .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 28))
 
-                Button {
-                    replayTrigger += 1
-                } label: {
-                    Label("Replay", systemImage: "arrow.clockwise")
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                }
-                .glassEffect()
+                Text(instruction)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text(item.title)
@@ -60,31 +54,40 @@ struct DetailView: View {
                 }
             }
         }
-        .task {
-            try? await Task.sleep(for: .milliseconds(400))
-            replayTrigger += 1
-        }
     }
 
     @ViewBuilder
     private var stageView: some View {
         switch item.kind {
         case .pressScale:
-            PressScaleView(replayTrigger: replayTrigger)
+            PressScaleView()
         case .toggleSwitch:
-            ToggleSwitchView(replayTrigger: replayTrigger)
+            ToggleSwitchView()
         case .likeBurst:
-            LikeBurstView(replayTrigger: replayTrigger)
+            LikeBurstView()
         case .drawnCheckmark:
-            DrawnCheckmarkView(replayTrigger: replayTrigger)
+            DrawnCheckmarkView()
         case .iconMorph:
-            IconMorphView(replayTrigger: replayTrigger)
+            IconMorphView()
         case .slidingSegmentPill:
-            SlidingSegmentPillView(replayTrigger: replayTrigger)
+            SlidingSegmentPillView()
         case .rollingCounter:
-            RollingCounterView(replayTrigger: replayTrigger)
+            RollingCounterView()
         case .progressiveButton:
-            ProgressiveButtonView(replayTrigger: replayTrigger)
+            ProgressiveButtonView()
+        }
+    }
+
+    private var instruction: String {
+        switch item.kind {
+        case .pressScale: "Tap to press"
+        case .toggleSwitch: "Tap to toggle"
+        case .likeBurst: "Tap to like"
+        case .drawnCheckmark: "Tap to check"
+        case .iconMorph: "Tap to play"
+        case .slidingSegmentPill: "Tap a segment to select"
+        case .rollingCounter: "Tap to count"
+        case .progressiveButton: "Tap to submit"
         }
     }
 }

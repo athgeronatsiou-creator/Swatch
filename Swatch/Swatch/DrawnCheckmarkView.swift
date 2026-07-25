@@ -18,7 +18,6 @@ private struct CheckmarkShape: Shape {
 }
 
 struct DrawnCheckmarkView: View {
-    var replayTrigger: Int = 0
     @State private var trimEnd = 0.0
     @State private var scale = 1.0
 
@@ -28,18 +27,24 @@ struct DrawnCheckmarkView: View {
             .stroke(.tint, style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round))
             .frame(width: 80, height: 80)
             .scaleEffect(scale)
-            .onChange(of: replayTrigger) { _, _ in play() }
+            .contentShape(Rectangle())
+            .onTapGesture { play() }
     }
 
     private func play() {
-        trimEnd = 0
-        scale = 1
+        guard trimEnd == 0 else { return }
         withAnimation(Motion.checkmarkDraw) {
             trimEnd = 1
         } completion: {
             scale = 1.2
             withAnimation(Motion.checkmarkSettle) {
                 scale = 1
+            }
+            Task {
+                try? await Task.sleep(for: .milliseconds(900))
+                withAnimation(Motion.checkmarkDraw) {
+                    trimEnd = 0
+                }
             }
         }
     }

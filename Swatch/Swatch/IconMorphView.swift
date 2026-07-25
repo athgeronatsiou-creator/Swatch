@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct IconMorphView: View {
-    var replayTrigger: Int = 0
     @State private var isPlaying = false
 
     var body: some View {
@@ -16,7 +15,7 @@ struct IconMorphView: View {
             .font(.system(size: 60))
             .foregroundStyle(.tint)
             .contentTransition(.symbolEffect(.replace))
-            .onChange(of: replayTrigger) { _, _ in play() }
+            .onTapGesture { play() }
     }
 
     private func play() {

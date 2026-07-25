@@ -8,21 +8,19 @@
 import SwiftUI
 
 struct LikeBurstView: View {
-    var replayTrigger: Int = 0
-    @State private var scale = 0.0
+    @State private var isLiked = false
 
     var body: some View {
-        Image(systemName: "heart.fill")
+        Image(systemName: isLiked ? "heart.fill" : "heart")
             .font(.system(size: 60))
-            .foregroundStyle(.red)
-            .scaleEffect(scale)
-            .onChange(of: replayTrigger) { _, _ in play() }
+            .foregroundStyle(isLiked ? .red : .secondary)
+            .scaleEffect(isLiked ? 1 : 0.8)
+            .onTapGesture { play() }
     }
 
     private func play() {
-        scale = 0
         withAnimation(Motion.likeBurst) {
-            scale = 1
+            isLiked.toggle()
         }
     }
 }

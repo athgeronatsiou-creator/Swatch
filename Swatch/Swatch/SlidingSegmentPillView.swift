@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SlidingSegmentPillView: View {
-    var replayTrigger: Int = 0
     @State private var selection = 0
     @Namespace private var namespace
 
@@ -28,16 +27,17 @@ struct SlidingSegmentPillView: View {
                                 .matchedGeometryEffect(id: "pill", in: namespace)
                         }
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture { select(index) }
             }
         }
         .padding(4)
         .background(Color(.systemGray5), in: Capsule())
-        .onChange(of: replayTrigger) { _, _ in play() }
     }
 
-    private func play() {
+    private func select(_ index: Int) {
         withAnimation(Motion.segmentSlide) {
-            selection = (selection + 1) % segments.count
+            selection = index
         }
     }
 }

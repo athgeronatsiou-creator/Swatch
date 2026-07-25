@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct RollingCounterView: View {
-    var replayTrigger: Int = 0
     @State private var count = 0
 
     var body: some View {
@@ -16,7 +15,7 @@ struct RollingCounterView: View {
             .font(.system(size: 60, weight: .bold, design: .rounded))
             .foregroundStyle(.tint)
             .contentTransition(.numericText())
-            .onChange(of: replayTrigger) { _, _ in play() }
+            .onTapGesture { play() }
     }
 
     private func play() {

@@ -8,15 +8,14 @@
 import SwiftUI
 
 struct PressScaleView: View {
-    var replayTrigger: Int = 0
-    @State private var scale = 0.0
+    @State private var scale = 1.0
 
     var body: some View {
         Image(systemName: "hand.tap.fill")
             .font(.system(size: 60))
             .foregroundStyle(.tint)
             .scaleEffect(scale)
-            .onChange(of: replayTrigger) { _, _ in play() }
+            .onTapGesture { play() }
     }
 
     private func play() {

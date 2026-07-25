@@ -12,7 +12,6 @@ private enum ButtonStage {
 }
 
 struct ProgressiveButtonView: View {
-    var replayTrigger: Int = 0
     @State private var stage: ButtonStage = .idle
 
     var body: some View {
@@ -31,7 +30,7 @@ struct ProgressiveButtonView: View {
         .foregroundStyle(.white)
         .frame(width: width, height: 44)
         .background(stage == .success ? Color.green : Color.accentColor, in: Capsule())
-        .onChange(of: replayTrigger) { _, _ in play() }
+        .onTapGesture { play() }
     }
 
     private var width: CGFloat {
@@ -43,15 +42,18 @@ struct ProgressiveButtonView: View {
     }
 
     private func play() {
-        stage = .idle
+        guard stage == .idle else { return }
         Task {
-            try? await Task.sleep(for: .milliseconds(300))
             withAnimation(Motion.progressiveButton) {
                 stage = .loading
             }
             try? await Task.sleep(for: .milliseconds(900))
             withAnimation(Motion.progressiveButton) {
                 stage = .success
+            }
+            try? await Task.sleep(for: .milliseconds(900))
+            withAnimation(Motion.progressiveButton) {
+                stage = .idle
             }
         }
     }
