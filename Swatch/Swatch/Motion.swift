@@ -54,4 +54,36 @@ enum Motion {
 
     // Modal presentation: sheet content fades and scales in once the sheet settles.
     static let modalContentReveal = Animation.spring(response: 0.4, dampingFraction: 0.8)
+
+    // Radial reveal: mask circle grows out from the touch point, then collapses back.
+    static let radialReveal = Animation.easeOut(duration: 0.45)
+
+    // Staggered list reveal: every row uses the same curve, offset by its index.
+    static let staggerRow = Animation.spring(response: 0.4, dampingFraction: 0.8)
+    // Seconds between one row starting and the next. Not an Animation — it's the gap
+    // that makes the cascade read as deliberate rather than as lag.
+    static let staggerDelayStep = 0.06
+
+    // Shake to reject: no entry here on purpose. The shake's timing lives in its own
+    // keyframes, because each leg of it has a different duration.
+
+    // Hold to confirm: ring fills over the hold, and unwinds faster if you let go early.
+    static let holdFill = Animation.linear(duration: 1.2)
+    static let holdRelease = Animation.easeOut(duration: 0.25)
+
+    // Pinch to zoom: nothing animates during the pinch; this is only the settle back to rest.
+    static let pinchSettle = Animation.spring(response: 0.35, dampingFraction: 0.7)
+
+    // Card flip: half a turn per tap, damped high so the card doesn't wobble past flat.
+    static let cardFlip = Animation.spring(response: 0.55, dampingFraction: 0.85)
+    // The face swap has to happen while the card is edge-on, not fade across the whole
+    // turn — so it's effectively instant, delayed to land at the 90° point.
+    static let cardFaceSwap = Animation.linear(duration: 0.01).delay(0.22)
+
+    // Toast: springs in from the top edge, leaves on a plainer curve.
+    static let toastIn = Animation.spring(response: 0.4, dampingFraction: 0.8)
+    static let toastOut = Animation.easeIn(duration: 0.25)
+
+    // Breathing pulse: swells and recedes, autoreversing — unlike the spinner and shimmer.
+    static let breathingPulse = Animation.easeInOut(duration: 0.9).repeatForever(autoreverses: true)
 }

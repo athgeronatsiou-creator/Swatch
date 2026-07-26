@@ -59,4 +59,18 @@ One gap left open deliberately: the favourite heart in `DetailView`'s toolbar st
 
 Also worth knowing: this work was requested against "CLAUDE.md rules 9 and 10" and "PRD §5 F8 and F9", none of which exist — this file stops at rule 7 and the PRD at F7. The requirements came from the chat instead. If the docs are meant to be the record, F8 (documentation + code on the detail screen) and F9 (share) still need writing up.
 
-Next up if continuing: manual pass on Swipe to delete / Drag to reorder / Modal presentation, then pick up #9/#10 or the PRD's final step (screen recording, README, repo tidy).
+Catalogue is now 24 motions. Eight added in one pass, each in its own file, no existing animation file touched: **Radial reveal** (PRD #9 — mask circle scaled from the touch point), **Staggered list reveal** (PRD #10 — per-index `.delay`), **Shake to reject** (Feedback — `keyframeAnimator`), **Hold to confirm** (Gesture — `onLongPressGesture` + `onPressingChanged`), **Pinch to zoom** (Gesture — `MagnifyGesture`), **Card flip** (Transition — `rotation3DEffect` + perspective), **Toast slide-in** (Transition — `.transition` on insertion), **Breathing pulse** (Loading — `autoreverses: true`). All use existing categories, so no new chips. Each has haptics, `documentation` and `sourceSnippet`, and triggers from its own control.
+
+The spring/timing values for these eight are **not from a spec** — unlike the original ten, there was nothing in the PRD to match, so they were chosen during the build. Treat them as open to revision in a way the original values are not.
+
+Three things learned that are worth keeping:
+1. `Motion.swift` now holds one non-`Animation` constant (`staggerDelayStep`), because the gap between rows is a timing value like any other and belongs with them rather than buried in the view.
+2. Card flip needs its face-swap animation **scoped to the faces**, not to the card. Two `.animation(_:value:)` modifiers stacked on the same container do not give you two curves — the outer wins, and the swap goes back to cross-fading in full view.
+3. A resting state can be too empty. Staggered list reveal's rows are all at opacity 0 at rest, which is correct per F2 but left the stage completely blank with nothing to aim at, reading as broken. It now shows a "Tap to reveal" hint at rest, the same pattern radial reveal already uses.
+
+Verification status, because it is uneven and the gaps matter:
+- **Confirmed in the Simulator:** Card flip (back face lands unmirrored), Radial reveal (a corner tap still covers the whole panel, so the 2×diagonal diameter is right), Staggered list reveal (all four rows, plus the new hint), Toast slide-in (slides, clips, glass renders). Search still narrows correctly across 24 items.
+- **Not captured:** Shake to reject, Hold to confirm's fill and confirmed states, Breathing pulse. All are shorter than the screenshot round-trip, so the capture always lands after they have reset. They compile and the resting states are correct, which is not the same as verified.
+- **Not working under scripted input:** Pinch to zoom. `touch2_path` with a 4-second spread never moved the panel. That may be the tool rather than the code — `MagnifyGesture` is standard — but it is untested either way and needs a manual Option-drag in the Simulator or a real device before being trusted.
+
+Next up if continuing: manual gesture pass on Pinch to zoom (highest priority — genuinely unverified), then Swipe to delete / Drag to reorder / Modal presentation, then the PRD's final step (screen recording, README, repo tidy). Also worth revisiting: with 24 motions the PRD's §6 shortlist tables are now well behind the actual catalogue.

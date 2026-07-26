@@ -816,5 +816,461 @@ enum Catalog {
                 """#,
             kind: .sharedElementPush
         ),
+        MotionItem(
+            id: "radial-reveal",
+            title: "Radial reveal",
+            category: "Reveal",
+            symbolName: "circle.circle",
+            description: "Starting the motion where the finger landed makes the app feel like it's responding to you, not just to the tap.",
+            conceptNote: "mask · circle scale from touch point · easeOut 0.45",
+            documentation: """
+                The revealed layer never moves. What animates is the hole it is seen \
+                through: a Circle in a .mask, centred on the touch point and scaled from 0 \
+                to 1. Because the circle is scaled rather than resized, its growth is \
+                cheap and stays perfectly round.
+
+                Two values are set outside the animation block — the origin and the scale \
+                reset. That matters: if origin is assigned inside withAnimation, the opening \
+                slides over from the last place you tapped instead of starting where your \
+                finger just was, which is precisely the effect this motion exists to \
+                demonstrate. The circle's diameter is twice the panel's diagonal so that a \
+                tap in a corner still reaches the opposite one.
+
+                easeOut 0.45 because a reveal should leave fast and arrive gently — the \
+                opposite bias to a button press.
+                """,
+            sourceSnippet: #"""
+                @State private var origin: CGPoint = .zero
+                @State private var revealScale: CGFloat = 0
+
+                // Big enough that a circle centred in any corner still reaches the far one.
+                private var diameter: CGFloat {
+                    2 * hypot(panel.width, panel.height)
+                }
+
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.tint)
+                    .mask(alignment: .topLeading) {
+                        Circle()
+                            .frame(width: diameter, height: diameter)
+                            .scaleEffect(revealScale)
+                            .offset(x: origin.x - diameter / 2, y: origin.y - diameter / 2)
+                    }
+
+                .onTapGesture(coordinateSpace: .local) { location in
+                    reveal(from: location)
+                }
+
+                private func reveal(from location: CGPoint) {
+                    guard !isRevealed else { return }
+
+                    // Outside the animation: the circle has to jump to the new touch
+                    // point, not slide there from the last one.
+                    origin = location
+                    revealScale = 0
+                    isRevealed = true
+
+                    withAnimation(Motion.radialReveal) {
+                        revealScale = 1
+                    }
+                }
+
+                // Motion.swift
+                static let radialReveal = Animation.easeOut(duration: 0.45)
+                """#,
+            kind: .radialReveal
+        ),
+        MotionItem(
+            id: "staggered-list-reveal",
+            title: "Staggered list reveal",
+            category: "Reveal",
+            symbolName: "list.bullet.indent",
+            description: "Offsetting each row by a few frames reads as deliberate. Firing them together reads as a jump cut.",
+            conceptNote: "per-index delay · 0.06s step · spring 0.4 · 0.8",
+            documentation: """
+                There is one piece of state — a single boolean — and every row watches it. \
+                The cascade comes entirely from .delay(Double(index) * step) on each row's \
+                animation, so row 0 starts immediately, row 1 six hundredths later, and so \
+                on. Nothing tracks which rows have finished, and no timers are involved.
+
+                The step size is the whole design decision. Too small and the rows read as \
+                arriving together; too large — past roughly 0.1s per row — and the list \
+                reads as slow rather than as cascading, because the eye starts waiting for \
+                the next one. 0.06 is short enough to feel like one gesture with internal \
+                structure.
+
+                Each row also travels 14pt as it fades, because opacity alone reads as \
+                material appearing while a small offset reads as material arriving. Tapping \
+                again reverses the whole thing on the same delays, so the first row in is \
+                also the first row out.
+                """,
+            sourceSnippet: #"""
+                @State private var isRevealed = false
+
+                VStack(spacing: 8) {
+                    ForEach(rows.indices, id: \.self) { index in
+                        row(index)
+                            .opacity(isRevealed ? 1 : 0)
+                            .offset(y: isRevealed ? 0 : 14)
+                            // One state change, four different start times.
+                            .animation(
+                                Motion.staggerRow.delay(Double(index) * Motion.staggerDelayStep),
+                                value: isRevealed
+                            )
+                    }
+                }
+                .onTapGesture { isRevealed.toggle() }
+                .sensoryFeedback(.impact(weight: .light), trigger: isRevealed)
+
+                // Motion.swift
+                static let staggerRow = Animation.spring(response: 0.4, dampingFraction: 0.8)
+                static let staggerDelayStep = 0.06
+                """#,
+            kind: .staggeredListReveal
+        ),
+        MotionItem(
+            id: "shake-to-reject",
+            title: "Shake to reject",
+            category: "Feedback",
+            symbolName: "exclamationmark.triangle.fill",
+            description: "A refusal has to feel like the interface saying no, which means it can't be smooth.",
+            conceptNote: "keyframeAnimator · 6 legs · decaying amplitude",
+            documentation: """
+                This is the one motion in the catalogue that a spring cannot express. A \
+                spring's overshoot decays according to its damping, and you get whatever \
+                amplitudes that produces. A rejection needs the amplitudes chosen \
+                deliberately — 10, 9, 6, 4, 2, 0 — so the refusal is emphatic at the start \
+                and clearly finished at the end.
+
+                keyframeAnimator is the tool for that. It takes an initial value, a trigger, \
+                and a track of keyframes each with its own duration, and it replays the \
+                whole track every time the trigger changes. That trigger is an integer \
+                counter rather than a boolean, because a boolean can only change twice — a \
+                counter lets the same shake fire indefinitely without needing a reset.
+
+                CubicKeyframe smooths the direction changes so it reads as a shake rather \
+                than as a stutter; SpringKeyframe or LinearKeyframe would give a bouncier or \
+                more mechanical version of the same track. The final leg is slightly longer \
+                than the rest so the field settles rather than stopping dead.
+                """,
+            sourceSnippet: #"""
+                @State private var attempts = 0
+
+                // Six legs, each with its own duration and target — a spring can't express
+                // this, because the amplitude has to decay on a schedule rather than by
+                // damping.
+                .keyframeAnimator(initialValue: 0.0, trigger: attempts) { content, offset in
+                    content.offset(x: offset)
+                } keyframes: { _ in
+                    KeyframeTrack {
+                        CubicKeyframe(-10, duration: 0.07)
+                        CubicKeyframe(9, duration: 0.07)
+                        CubicKeyframe(-6, duration: 0.07)
+                        CubicKeyframe(4, duration: 0.07)
+                        CubicKeyframe(-2, duration: 0.07)
+                        CubicKeyframe(0, duration: 0.1)
+                    }
+                }
+                .onTapGesture { attempts += 1 }
+                .sensoryFeedback(.error, trigger: attempts)
+
+                // No Motion.swift entry — the timing lives in the keyframes, because each
+                // leg has its own duration.
+                """#,
+            kind: .shakeToReject
+        ),
+        MotionItem(
+            id: "hold-to-confirm",
+            title: "Hold to confirm",
+            category: "Gesture",
+            symbolName: "hand.point.up.left.fill",
+            description: "The motion is the safeguard: you can see the commitment building, and abandon it.",
+            conceptNote: "onLongPressGesture · linear 1.2 fill · easeOut 0.25 unwind",
+            documentation: """
+                A destructive action that needs deliberate intent, where the animation is \
+                doing real work rather than decorating. The ring is a trimmed Circle whose \
+                trim end animates from 0 to 1 over 1.2s — the same duration as the gesture's \
+                minimumDuration, so the ring completing and the action firing are the same \
+                moment. If those two numbers drift apart the control lies to you.
+
+                onPressingChanged fires on both press and release, which is what makes \
+                cancellation possible: press starts the fill, release before completion \
+                unwinds it. The unwind is deliberately faster (0.25s) and on a different \
+                curve, because abandoning an action should feel instant while committing to \
+                one should feel considered.
+
+                The fill is linear on purpose. Easing would make the ring appear to \
+                accelerate, which misrepresents how much longer you have to hold — the one \
+                thing this motion has to communicate honestly. Note also the guard in the \
+                release branch: without it, letting go after a successful confirm would \
+                unwind the completed ring and undo the feedback.
+                """,
+            sourceSnippet: #"""
+                @State private var progress: CGFloat = 0
+                @State private var isPressing = false
+                @State private var isConfirmed = false
+
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(
+                        isConfirmed ? Color.green : Color.accentColor,
+                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+
+                .onLongPressGesture(minimumDuration: 1.2) {
+                    confirm()
+                } onPressingChanged: { pressing in
+                    isPressing = pressing
+                    if pressing {
+                        withAnimation(Motion.holdFill) {
+                            progress = 1
+                        }
+                    } else if !isConfirmed {
+                        // Released early. The ring has to visibly retreat, not vanish.
+                        withAnimation(Motion.holdRelease) {
+                            progress = 0
+                        }
+                    }
+                }
+
+                // Motion.swift
+                static let holdFill = Animation.linear(duration: 1.2)
+                static let holdRelease = Animation.easeOut(duration: 0.25)
+                """#,
+            kind: .holdToConfirm
+        ),
+        MotionItem(
+            id: "pinch-to-zoom",
+            title: "Pinch to zoom",
+            category: "Gesture",
+            symbolName: "arrow.up.left.and.arrow.down.right.circle",
+            description: "Rubber-banding back to rest is what tells you the limit was a limit, not a bug.",
+            conceptNote: "MagnifyGesture · clamped magnification · spring settle",
+            documentation: """
+                MagnifyGesture reports a magnification that starts at 1 and scales with the \
+                distance between two fingers, so it can be assigned straight to \
+                .scaleEffect. As with swipe to delete, the live phase has no animation at \
+                all — any curve here would put the panel behind your fingers and break the \
+                sense of holding it.
+
+                The clamp between 0.6 and 2.2 is what makes the limits legible: the panel \
+                stops growing but your fingers keep going, and that mismatch reads as an \
+                edge rather than as a frozen app. The settle back to 1 on release is the \
+                only animated part, and it's a spring at 0.7 damping so it overshoots \
+                slightly — the same trick as the like burst, and the reason the snap-back \
+                feels elastic rather than mechanical.
+
+                Worth knowing on the Simulator: this needs two fingers, so it is Option-drag \
+                rather than a click, and it is the only motion here you cannot trigger with \
+                a single pointer.
+                """,
+            sourceSnippet: #"""
+                private let minScale: CGFloat = 0.6
+                private let maxScale: CGFloat = 2.2
+
+                @State private var scale: CGFloat = 1
+                @State private var isPinching = false
+
+                .scaleEffect(scale)
+                .gesture(
+                    MagnifyGesture()
+                        .onChanged { value in
+                            isPinching = true
+                            // Assigned straight from the gesture, unanimated, so the panel
+                            // sits exactly where the two fingers put it.
+                            scale = min(max(value.magnification, minScale), maxScale)
+                        }
+                        .onEnded { _ in
+                            isPinching = false
+                            withAnimation(Motion.pinchSettle) {
+                                scale = 1
+                            }
+                        }
+                )
+                .sensoryFeedback(.impact(weight: .light), trigger: isPinching)
+
+                // Motion.swift
+                static let pinchSettle = Animation.spring(response: 0.35, dampingFraction: 0.7)
+                """#,
+            kind: .pinchToZoom
+        ),
+        MotionItem(
+            id: "card-flip",
+            title: "Card flip",
+            category: "Transition",
+            symbolName: "rectangle.portrait.rotate",
+            description: "Two faces of one object, not two views trading places — and perspective is what sells it.",
+            conceptNote: "rotation3DEffect · perspective 0.6 · spring 0.55 · 0.85",
+            documentation: """
+                Three things have to line up, and the third is the one everybody misses.
+
+                First, the container rotates 180° around the y axis. Second, the back face \
+                is *pre*-rotated 180°, so that when the container turns it lands the right \
+                way round rather than mirrored — remove that and the back reads as \
+                backwards. Third, perspective: at 0 the card squashes horizontally like a \
+                closing blind, because there is no depth for the near edge to grow into. \
+                0.6 gives a believable amount without the exaggerated fisheye you get \
+                nearer 1.
+
+                The fiddly part is the face swap. Both faces exist the whole time, so their \
+                opacities have to switch exactly as the card passes edge-on — invisible, \
+                halfway through the turn. Left on the flip's own curve, the two faces \
+                cross-fade in full view and you see through the card. Hence a separate \
+                near-instant animation, scoped to the faces and delayed to ~0.22s, roughly \
+                half the spring's settle. Scoping matters: attaching both curves to the \
+                whole card lets the outer one win and the swap goes back to fading.
+                """,
+            sourceSnippet: #"""
+                @State private var isFlipped = false
+
+                ZStack {
+                    face(symbol: "creditcard.fill", tint: Color.accentColor)
+                        .opacity(isFlipped ? 0 : 1)
+                        // Scoped to the face, not the whole card: the swap has to land
+                        // while the card is edge-on and invisible.
+                        .animation(Motion.cardFaceSwap, value: isFlipped)
+
+                    // Pre-rotated a half turn so that when the container flips, this face
+                    // ends up the right way round instead of mirrored.
+                    face(symbol: "lock.fill", tint: .teal)
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .opacity(isFlipped ? 1 : 0)
+                        .animation(Motion.cardFaceSwap, value: isFlipped)
+                }
+                .rotation3DEffect(
+                    .degrees(isFlipped ? 180 : 0),
+                    axis: (x: 0, y: 1, z: 0),
+                    perspective: 0.6
+                )
+                .animation(Motion.cardFlip, value: isFlipped)
+                .onTapGesture { isFlipped.toggle() }
+                .sensoryFeedback(.impact(weight: .medium), trigger: isFlipped)
+
+                // Motion.swift
+                static let cardFlip = Animation.spring(response: 0.55, dampingFraction: 0.85)
+                static let cardFaceSwap = Animation.linear(duration: 0.01).delay(0.22)
+                """#,
+            kind: .cardFlip
+        ),
+        MotionItem(
+            id: "toast-slide-in",
+            title: "Toast slide-in",
+            category: "Transition",
+            symbolName: "bell.badge.fill",
+            description: "Arriving from an edge says where it came from and that it's going back there.",
+            conceptNote: "transition · move(edge: .top) + opacity · spring in, easeIn out",
+            documentation: """
+                No offset is animated here. The toast lives inside an if, so it is genuinely \
+                inserted into and removed from the view tree, and .transition describes what \
+                should happen at both of those moments. SwiftUI runs the transition in \
+                reverse on removal for free — which is why one modifier covers both arrival \
+                and departure.
+
+                Combining .move(edge: .top) with .opacity is what stops it looking like a \
+                solid object sliding under a bezel. Movement alone reads as mechanical; \
+                fading alone loses the sense of direction, and direction is the entire \
+                message — this came from the top, so that's where it will go back to.
+
+                Two practical notes. The .clipped() on the container is load-bearing: \
+                without it the toast is plainly visible above the panel during its slide, \
+                because moving out of a frame doesn't hide anything by itself. And the \
+                arrival is a spring while the exit is easeIn, deliberately — an \
+                interruption should feel like it has arrived somewhere, and then get out of \
+                the way without asking for attention on the way.
+                """,
+            sourceSnippet: #"""
+                @State private var isShowing = false
+
+                ZStack(alignment: .top) {
+                    Button { show() } label: {
+                        Label("Show toast", systemImage: "bell.badge")
+                    }
+                    .glassEffect()
+                    .frame(maxHeight: .infinity)
+
+                    if isShowing {
+                        toast
+                            // Attached to a view inside an `if`, so SwiftUI runs this on
+                            // insertion and, reversed, on removal.
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                }
+                .frame(width: 280, height: 170)
+                // Without this the toast is visible above the stage while it slides in.
+                .clipped()
+
+                private func show() {
+                    guard !isShowing else { return }
+
+                    withAnimation(Motion.toastIn) {
+                        isShowing = true
+                    }
+
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(1600))
+                        withAnimation(Motion.toastOut) {
+                            isShowing = false
+                        }
+                    }
+                }
+
+                // Motion.swift
+                static let toastIn = Animation.spring(response: 0.4, dampingFraction: 0.8)
+                static let toastOut = Animation.easeIn(duration: 0.25)
+                """#,
+            kind: .toastSlideIn
+        ),
+        MotionItem(
+            id: "breathing-pulse",
+            title: "Breathing pulse",
+            category: "Loading",
+            symbolName: "circle.dotted",
+            description: "The one loading case where reversing the motion is right, rather than a mistake.",
+            conceptNote: "repeatForever(autoreverses: true) · easeInOut 0.9",
+            documentation: """
+                Put this next to the spinner and the shimmer and the difference is the whole \
+                lesson. Both of those use repeatForever(autoreverses: false), because a \
+                spinner that reversed would read as scrubbing and a highlight that swept \
+                backwards would read as undoing. A pulse is the opposite case: it has no \
+                direction to contradict, so reversing is not just acceptable, it is what \
+                makes it a pulse instead of a stutter.
+
+                That also frees the curve. The spinner has to be linear or it appears to \
+                stumble once per revolution; here easeInOut is right, because a swell that \
+                slows at each extreme is what reads as breathing rather than as pumping.
+
+                Two layers do the work: a filled circle changing size, and a stroked ring \
+                travelling further and fading to nothing. The ring is what turns "a dot \
+                resizing" into "something radiating" — and it costs one overlay.
+                """,
+            sourceSnippet: #"""
+                @State private var isSwollen = false
+
+                Circle()
+                    .fill(.tint)
+                    .frame(width: 44, height: 44)
+                    .scaleEffect(isSwollen ? 1.25 : 0.9)
+                    .overlay {
+                        // A second ring travelling further and fading out entirely, so the
+                        // pulse reads as something radiating rather than a dot resizing.
+                        Circle()
+                            .stroke(.tint, lineWidth: 2)
+                            .frame(width: 44, height: 44)
+                            .scaleEffect(isSwollen ? 1.9 : 0.9)
+                            .opacity(isSwollen ? 0 : 0.7)
+                    }
+
+                // in play()
+                isSwollen = false
+                withAnimation(Motion.breathingPulse) {
+                    isSwollen = true
+                }
+
+                // Motion.swift
+                static let breathingPulse = Animation.easeInOut(duration: 0.9).repeatForever(autoreverses: true)
+                """#,
+            kind: .breathingPulse
+        ),
     ]
 }

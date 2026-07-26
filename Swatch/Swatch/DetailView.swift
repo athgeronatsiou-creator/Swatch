@@ -205,6 +205,22 @@ struct DetailView: View {
             ModalPresentationView()
         case .sharedElementPush:
             SharedElementPushView()
+        case .radialReveal:
+            RadialRevealView()
+        case .staggeredListReveal:
+            StaggeredListRevealView()
+        case .shakeToReject:
+            ShakeToRejectView()
+        case .holdToConfirm:
+            HoldToConfirmView()
+        case .pinchToZoom:
+            PinchToZoomView()
+        case .cardFlip:
+            CardFlipView()
+        case .toastSlideIn:
+            ToastSlideInView()
+        case .breathingPulse:
+            BreathingPulseView()
         }
     }
 
@@ -230,6 +246,14 @@ struct DetailView: View {
         case .dragToReorder: "Drag a row to reorder"
         case .modalPresentation: "Tap to present"
         case .sharedElementPush: "Go back to watch it happen in reverse"
+        case .radialReveal: "Tap anywhere — the reveal starts where you touch"
+        case .staggeredListReveal: "Tap to reveal, tap again to clear"
+        case .shakeToReject: "Tap to submit"
+        case .holdToConfirm: "Press and hold to confirm — let go early to cancel"
+        case .pinchToZoom: "Pinch to zoom (two fingers)"
+        case .cardFlip: "Tap to flip"
+        case .toastSlideIn: "Tap to show the toast"
+        case .breathingPulse: "Tap to simulate loading"
         }
     }
 }
