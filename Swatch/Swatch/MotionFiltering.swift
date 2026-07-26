@@ -10,15 +10,41 @@ import SwiftUI
 // Filter + search rules shared by the Library and Favourites grids (F7).
 // They live here rather than in either screen so the two can't drift apart —
 // Favourites applies the same rules, just to the favourited subset.
+/// One category's worth of a grid, so the grid can draw a header above its items.
+struct MotionCategoryGroup: Identifiable {
+    let category: String
+    let items: [MotionItem]
+
+    var id: String { category }
+}
+
 extension Collection where Element == MotionItem {
-    /// Distinct categories, in catalogue order. Derived from the items themselves,
-    /// so adding a Catalog entry with a brand-new category makes its chip appear
-    /// with no change here or in either screen.
+    /// Distinct categories, alphabetical. Derived from the items themselves, so adding
+    /// a Catalog entry with a brand-new category makes its chip appear, in the right
+    /// place, with no change here or in any screen.
+    ///
+    /// Sorted with `localizedStandardCompare` rather than `<` so the order matches what
+    /// the person reading it would call alphabetical, in their locale, rather than
+    /// Unicode code-point order.
     var distinctCategories: [String] {
-        var seen: Set<String> = []
-        return reduce(into: [String]()) { result, item in
-            if seen.insert(item.category).inserted { result.append(item.category) }
-        }
+        Set(map(\.category))
+            .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+    }
+
+    /// Grouped into alphabetical category sections, each section's items alphabetical
+    /// by title. Same ordering rule as the chips, so the chip row and the grid read as
+    /// one list rather than two — which is the whole point of sorting either of them.
+    var groupedByCategory: [MotionCategoryGroup] {
+        Dictionary(grouping: self, by: \.category)
+            .map { category, items in
+                MotionCategoryGroup(
+                    category: category,
+                    items: items.sorted {
+                        $0.title.localizedStandardCompare($1.title) == .orderedAscending
+                    }
+                )
+            }
+            .sorted { $0.category.localizedStandardCompare($1.category) == .orderedAscending }
     }
 
     /// Category filter and text search compose — an item has to satisfy both.

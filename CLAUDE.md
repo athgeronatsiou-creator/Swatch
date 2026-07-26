@@ -73,4 +73,14 @@ Verification status, because it is uneven and the gaps matter:
 - **Not captured:** Shake to reject, Hold to confirm's fill and confirmed states, Breathing pulse. All are shorter than the screenshot round-trip, so the capture always lands after they have reset. They compile and the resting states are correct, which is not the same as verified.
 - **Not working under scripted input:** Pinch to zoom. `touch2_path` with a 4-second spread never moved the panel. That may be the tool rather than the code — `MagnifyGesture` is standard — but it is untested either way and needs a manual Option-drag in the Simulator or a real device before being trusted.
 
+Grid presentation is now grouped and alphabetical. Three pieces, all in shared code so Library, Favourites and Search can't diverge: `distinctCategories` is sorted (so the chips read All · Feedback · Gesture · Loading · Reveal · State change · Transition), a new `groupedByCategory` returns `[MotionCategoryGroup]` — categories alphabetical, items alphabetical by title inside each — and `MotionGrid` renders those as `LazyVGrid` `Section`s with an uppercase secondary header.
+
+Both sorts use `localizedStandardCompare` rather than `<`, so the order is what a reader would call alphabetical in their locale instead of Unicode code-point order. Categories are still derived from the items, so a new `Catalog` entry in a new category still gets its chip and its section for free — now in the right position too.
+
+The header rule is worth knowing because it isn't "is All selected": headers show when `groups.count > 1`. Filter to one category and the chip row already names it, so a lone header repeating it is noise — and expressing it as a group count means search results that narrow to a single category get the same treatment without a special case. Headers are deliberately **not** pinned; the chip row above is already a pinned glass bar and a second sticky layer competes with it.
+
+Verified in the Simulator on all three tabs: Library All (six sections in order, alphabetical within each), Library filtered to Gesture (no header, still alphabetical), Favourites All (sections derived from just the saved subset).
+
+Known redundancy, left deliberately: `MotionCardView` still prints the category under every title, which now repeats the section header above it. Removing it in grouped mode would look cleaner but F1's acceptance criteria say each card shows title *and* category, so that's a spec change rather than a tidy-up — worth deciding on, not worth doing silently.
+
 Next up if continuing: manual gesture pass on Pinch to zoom (highest priority — genuinely unverified), then Swipe to delete / Drag to reorder / Modal presentation, then the PRD's final step (screen recording, README, repo tidy). Also worth revisiting: with 24 motions the PRD's §6 shortlist tables are now well behind the actual catalogue.
