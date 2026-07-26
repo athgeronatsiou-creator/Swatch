@@ -91,7 +91,7 @@ No approval chain. This is an advantage: decisions can be made in minutes. It is
 | Favourites | Mark/unmark an animation; persisted locally |
 | Favourites view | Filtered list of saved animations |
 | Metadata | Name, category, and short description per animation |
-| Visual approach | Stock iOS components and system conventions — SF Symbols, system typography, standard navigation. Reads as a native app; motion is the only thing that stands out |
+| Visual approach | Native iOS 26 **Liquid Glass** — translucent, blurred materials via SwiftUI's `.glassEffect()` / `GlassEffectContainer`, floating pill tab bar, glass circular toolbar buttons. Still stock iOS — this is the current system look, not a custom skin |
 | Platform | iOS, iPhone only, portrait only |
 | Distribution | Direct deployment from Xcode to the author's device |
 
@@ -107,7 +107,7 @@ Deferred deliberately, with reasons, so these can be revisited rather than re-ar
 | Gesture-driven animations | Phase 3 content; requires gesture-state handling |
 | In-app SwiftUI code snippets | Author did not select this; adds a syntax-highlighting dependency |
 | Numeric spec panel (duration, curve values) | Not selected; risks turning a feel-first app into a data sheet |
-| Search and filtering | Unnecessary below ~30 items |
+| ~~Search and filtering~~ | **Revised 26 Jul 2026:** added early, ahead of the original ~30-item threshold, once six categories made browsing worth speeding up. See PRD §5, F7 |
 | Dark mode | Nice-to-have, not a success criterion |
 | iPad, landscape, accessibility audit | Scope control |
 | Accounts, backend, networking, analytics | No server component of any kind in v1 |

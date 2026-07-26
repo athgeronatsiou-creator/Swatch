@@ -8,34 +8,18 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @EnvironmentObject private var favorites: FavoritesStore
-    @Namespace private var zoomNamespace
-
-    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    @State private var selectedCategory: String?
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 20) {
-                    ForEach(Catalog.all) { item in
-                        NavigationLink(value: item) {
-                            MotionCardView(item: item, isFavorite: favorites.contains(item.id))
-                        }
-                        .buttonStyle(.plain)
-                        .matchedTransitionSource(id: item.id, in: zoomNamespace)
-                    }
+            MotionGrid(items: Catalog.all.matching(category: selectedCategory))
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    CategoryFilterBar(
+                        categories: Catalog.all.distinctCategories,
+                        selection: $selectedCategory
+                    )
                 }
-                .padding()
-            }
-            .navigationTitle("Library")
-            .navigationDestination(for: MotionItem.self) { item in
-                if item.kind == .sharedElementPush {
-                    DetailView(item: item)
-                        .navigationTransition(.zoom(sourceID: item.id, in: zoomNamespace))
-                } else {
-                    DetailView(item: item)
-                }
-            }
+                .navigationTitle("Library")
         }
     }
 }

@@ -9,12 +9,21 @@ import SwiftUI
 
 struct FavouritesView: View {
     @EnvironmentObject private var favorites: FavoritesStore
-    @Namespace private var zoomNamespace
 
-    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    @State private var selectedCategory: String?
 
     private var savedItems: [MotionItem] {
         Catalog.all.filter { favorites.contains($0.id) }
+    }
+
+    /// Chips here come from the saved subset, not the whole catalogue — a chip for
+    /// a category you've saved nothing from would only ever show an empty grid.
+    private var availableCategories: [String] {
+        savedItems.distinctCategories
+    }
+
+    private var activeCategory: String? {
+        availableCategories.resolving(selectedCategory)
     }
 
     var body: some View {
@@ -27,29 +36,21 @@ struct FavouritesView: View {
                         description: Text("Tap the heart on any motion to keep it here.")
                     )
                 } else {
-                    ScrollView {
-                        LazyVGrid(columns: columns, spacing: 20) {
-                            ForEach(savedItems) { item in
-                                NavigationLink(value: item) {
-                                    MotionCardView(item: item, isFavorite: true)
-                                }
-                                .buttonStyle(.plain)
-                                .matchedTransitionSource(id: item.id, in: zoomNamespace)
-                            }
-                        }
-                        .padding()
-                    }
+                    MotionGrid(items: savedItems.matching(category: activeCategory))
+                }
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if !savedItems.isEmpty {
+                    CategoryFilterBar(
+                        categories: availableCategories,
+                        selection: Binding(
+                            get: { activeCategory },
+                            set: { selectedCategory = $0 }
+                        )
+                    )
                 }
             }
             .navigationTitle("Favourites")
-            .navigationDestination(for: MotionItem.self) { item in
-                if item.kind == .sharedElementPush {
-                    DetailView(item: item)
-                        .navigationTransition(.zoom(sourceID: item.id, in: zoomNamespace))
-                } else {
-                    DetailView(item: item)
-                }
-            }
         }
     }
 }
