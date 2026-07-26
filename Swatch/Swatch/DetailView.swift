@@ -13,35 +13,19 @@ struct DetailView: View {
     @EnvironmentObject private var favorites: FavoritesStore
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                stageView
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 220)
-                    .clipped()
-                    .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 28))
-
-                Text(instruction)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(item.title)
-                        .font(.title2.bold())
-                    Text(item.category.uppercased())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(item.description)
-                        .font(.body)
-                    Text(item.conceptNote)
-                        .font(.system(.caption, design: .monospaced))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color(.tertiarySystemBackground), in: Capsule())
+        Group {
+            if stageOwnsVerticalDrag {
+                // Pull to refresh needs to own the vertical drag, so this screen lays out
+                // without an enclosing ScrollView competing for it. Its content fits on
+                // one portrait screen. (`.scrollDisabled` is not an alternative here: it
+                // sets an environment value that propagates down and switches the stage's
+                // own list off too.)
+                detailContent
+            } else {
+                ScrollView {
+                    detailContent
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding()
         }
         .navigationTitle(item.title)
         .navigationBarTitleDisplayMode(.inline)
@@ -54,6 +38,48 @@ struct DetailView: View {
                 }
             }
         }
+    }
+
+    private var detailContent: some View {
+        VStack(spacing: 24) {
+            Group {
+                if stageOwnsVerticalDrag {
+                    // The usual fixed-height-plus-clip box breaks this one: `.clipped()`
+                    // only crops a List visually, it doesn't shorten it, so the List never
+                    // overflows, never bounces, and pull to refresh has nothing to grab.
+                    // Giving it the spare height means it scrolls for real.
+                    stageView
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    stageView
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 220)
+                        .clipped()
+                }
+            }
+            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 28))
+
+            Text(instruction)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: 12) {
+                Text(item.title)
+                    .font(.title2.bold())
+                Text(item.category.uppercased())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(item.description)
+                    .font(.body)
+                Text(item.conceptNote)
+                    .font(.system(.caption, design: .monospaced))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color(.tertiarySystemBackground), in: Capsule())
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding()
     }
 
     @ViewBuilder
@@ -92,6 +118,10 @@ struct DetailView: View {
         case .sharedElementPush:
             SharedElementPushView()
         }
+    }
+
+    private var stageOwnsVerticalDrag: Bool {
+        item.kind == .pullToRefresh
     }
 
     private var instruction: String {

@@ -12,7 +12,10 @@ struct PullToRefreshView: View {
 
     var body: some View {
         List {
-            ForEach(0..<4, id: \.self) { index in
+            // Enough rows to overflow the stage. A List whose content fits inside its
+            // frame switches vertical bouncing off, and `.refreshable` has no pull to
+            // hook into — so the row count is load-bearing here, not decoration.
+            ForEach(0..<10, id: \.self) { index in
                 Label("Item \(index + 1)", systemImage: "doc.text")
             }
 
