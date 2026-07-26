@@ -34,6 +34,15 @@ enum MotionKind: Hashable {
     case breathingPulse
 }
 
+/// Guidance for the person *choosing* a motion, as opposed to the person implementing
+/// it: where it belongs, and the specific ways it goes wrong. Kept structured rather
+/// than as prose so the detail screen can render the dos and don'ts as scannable lists.
+struct DesignGuidance: Hashable {
+    let whenToUse: String
+    let dos: [String]
+    let donts: [String]
+}
+
 struct MotionItem: Identifiable, Hashable {
     let id: String
     let title: String
@@ -45,6 +54,8 @@ struct MotionItem: Identifiable, Hashable {
     let documentation: String
     /// The motion's key SwiftUI logic, copied from its own file as plain text.
     let sourceSnippet: String
+    /// When to reach for this motion, and how it goes wrong.
+    let guidance: DesignGuidance
     let kind: MotionKind
 }
 

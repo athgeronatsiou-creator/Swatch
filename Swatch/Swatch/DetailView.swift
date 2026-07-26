@@ -12,6 +12,7 @@ struct DetailView: View {
 
     @EnvironmentObject private var favorites: FavoritesStore
 
+    @State private var isGuidanceExpanded = false
     @State private var isDocumentationExpanded = false
     @State private var isCodeExpanded = false
 
@@ -109,8 +110,64 @@ struct DetailView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
+            // Guidance sits above the other two deliberately. The order follows how a
+            // designer reads this screen: what it is, then whether to use it, then how
+            // it works, then the code. Swap the two lines to put the theory first.
+            guidanceSection
             documentationSection
             codeSection
+        }
+    }
+
+    private var guidanceSection: some View {
+        expandableSection(
+            title: "Design guidelines",
+            systemImage: "checklist",
+            isExpanded: $isGuidanceExpanded
+        ) {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 6) {
+                    guidanceHeading("WHEN TO USE")
+                    Text(item.guidance.whenToUse)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    guidanceHeading("DO")
+                    ForEach(item.guidance.dos, id: \.self) { line in
+                        guidanceRow(line, systemImage: "checkmark.circle.fill", tint: .green)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    guidanceHeading("DON'T")
+                    ForEach(item.guidance.donts, id: \.self) { line in
+                        guidanceRow(line, systemImage: "xmark.circle.fill", tint: .red)
+                    }
+                }
+            }
+        }
+        .sensoryFeedback(.impact(weight: .light), trigger: isGuidanceExpanded)
+    }
+
+    private func guidanceHeading(_ text: String) -> some View {
+        Text(text)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private func guidanceRow(_ text: String, systemImage: String, tint: Color) -> some View {
+        // firstTextBaseline so the icon lines up with the first line of a wrapped row
+        // rather than floating in the middle of it.
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.caption)
+                .foregroundStyle(tint)
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 0)
         }
     }
 

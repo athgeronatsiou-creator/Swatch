@@ -48,6 +48,19 @@ enum Catalog {
                 // Motion.swift
                 static let pressScale = Animation.spring(response: 0.35, dampingFraction: 0.7)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Any tappable element that has no other visible response — icon buttons, cards, toolbar items. It is the cheapest way to make a target feel like a button rather than a picture of one.",
+                dos: [
+                    "Keep it under about 200ms. Feedback that outlasts the tap stops reading as a response to it.",
+                    "Put it on the element that was actually tapped, not on its container.",
+                    "Let it re-trigger immediately — people tap twice to check whether it registered.",
+                ],
+                donts: [
+                    "Don't exceed about 10% of the element's size. More reads as the element breaking rather than depressing.",
+                    "Don't add it to controls that already animate on tap, like a toggle. Two responses to one tap reads as a glitch.",
+                    "Don't treat it as confirmation of a destructive action. It says 'received', not 'are you sure'.",
+                ]
+            ),
             kind: .pressScale
         ),
         MotionItem(
@@ -95,6 +108,19 @@ enum Catalog {
                 // Motion.swift
                 static let toggleSwitch = Animation.easeInOut(duration: 0.25)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Binary settings that take effect immediately, with no save step. If the change needs confirming or submitting, use a checkbox and a button instead.",
+                dos: [
+                    "Animate the thumb and the track colour on one curve, so it reads as one object changing state.",
+                    "Keep it in the 200–300ms range. A switch is a physical object with two positions, not a journey.",
+                    "Make the on state unambiguous by position as well as colour, for anyone who can't rely on the colour.",
+                ],
+                donts: [
+                    "Don't use a spring. Overshoot implies the thumb could come to rest somewhere between the two states.",
+                    "Don't animate a label change at the same time — the switch is already the signal.",
+                    "Don't use a toggle for an action. 'Delete' is a button, not a state.",
+                ]
+            ),
             kind: .toggleSwitch
         ),
         MotionItem(
@@ -136,6 +162,19 @@ enum Catalog {
                 // Motion.swift
                 static let likeBurst = Animation.spring(response: 0.4, dampingFraction: 0.4)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Low-stakes, high-frequency, optional actions — likes, saves, reactions. The overshoot is a small reward, which is exactly what you don't want on anything consequential.",
+                dos: [
+                    "Let it overshoot. Landing precisely on the target is what makes a reward feel flat.",
+                    "Animate colour and scale on the same spring so one gesture produces one event.",
+                    "Give the unselected state a slightly smaller resting scale, so there is somewhere to travel from.",
+                ],
+                donts: [
+                    "Don't reuse this for destructive or irreversible actions. Playfulness reads as 'that didn't matter'.",
+                    "Don't let the peak go much past 1.3×. Beyond that it stops being a settle and becomes a bounce.",
+                    "Don't celebrate the undo with the same intensity — removing something shouldn't feel rewarded.",
+                ]
+            ),
             kind: .likeBurst
         ),
         MotionItem(
@@ -198,6 +237,19 @@ enum Catalog {
                 static let checkmarkDraw = Animation.easeOut(duration: 0.4)
                 static let checkmarkSettle = Animation.spring(response: 0.3, dampingFraction: 0.5)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "The end of a process the person actually waited for — a form submitted, a payment cleared, a file uploaded. The time spent drawing is only justified if something took time.",
+                dos: [
+                    "Sequence it: draw, then settle. The settle is what makes the mark feel like it arrived rather than finished.",
+                    "Leave a faint track underneath so the stroke reads as filling a path, not appearing in empty space.",
+                    "Reset it, so the same success can be seen again without reloading the screen.",
+                ],
+                donts: [
+                    "Don't use it for instant results. Drawing a checkmark for a local toggle spends the person's time on nothing.",
+                    "Don't run it past about 500ms, or the confirmation becomes another thing to wait for.",
+                    "Don't pair it with a toast saying the same thing. Pick one confirmation and trust it.",
+                ]
+            ),
             kind: .drawnCheckmark
         ),
         MotionItem(
@@ -238,6 +290,19 @@ enum Catalog {
                 // Motion.swift
                 static let iconMorph = Animation.easeInOut(duration: 0.3)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "One control that swaps between two states with the same job — play/pause, mute/unmute, expand/collapse. Both glyphs have to mean the same button.",
+                dos: [
+                    "Use two system symbols, so the shapes genuinely interpolate instead of cross-fading.",
+                    "Hold the control's position and size fixed. Only the glyph should change.",
+                    "Keep it under about 300ms — long enough to read the morph, short enough to feel immediate.",
+                ],
+                donts: [
+                    "Don't morph between icons that mean different things. If the button's job changes, it is a different button.",
+                    "Don't use it where the state can't be reversed from the same control.",
+                    "Don't expect it from custom image assets — without shared geometry they can only cross-fade.",
+                ]
+            ),
             kind: .iconMorph
         ),
         MotionItem(
@@ -295,6 +360,19 @@ enum Catalog {
                 // Motion.swift
                 static let segmentSlide = Animation.spring(response: 0.35, dampingFraction: 0.75)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Two to five mutually exclusive options, all visible at once — filters, view modes, timeframes. The slide tells you where you came from as well as where you landed.",
+                dos: [
+                    "Move one indicator between positions rather than fading one out and another in.",
+                    "Keep the segments equal width, so the distance travelled means something.",
+                    "Keep labels legible throughout — don't fade text out and back during the move.",
+                ],
+                donts: [
+                    "Don't go past about five segments. The travel becomes a distraction and the labels get cramped.",
+                    "Don't use it for actions. It communicates selection, not execution.",
+                    "Don't animate the pill and the content it controls on different curves — the pill should feel like it's driving the change.",
+                ]
+            ),
             kind: .slidingSegmentPill
         ),
         MotionItem(
@@ -336,6 +414,19 @@ enum Catalog {
                 // Motion.swift
                 static let counterRoll = Animation.spring(response: 0.45, dampingFraction: 0.8)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "A number that changes while the person is watching, where the change itself is the news — vote counts, cart totals, live scores.",
+                dos: [
+                    "Roll only the digits that changed and leave the rest still.",
+                    "Use a font with stable digit widths, or the columns shuffle sideways as they roll.",
+                    "Run it slightly slower than a feedback animation — the number has to stay readable as it lands.",
+                ],
+                donts: [
+                    "Don't roll numbers the person didn't cause and isn't looking at. It spends attention for nothing.",
+                    "Don't use it for large jumps. Rolling from 4 to 4,000 reads as broken rather than as counting.",
+                    "Don't use it where the value must be read precisely mid-flight, like a total at checkout.",
+                ]
+            ),
             kind: .rollingCounter
         ),
         MotionItem(
@@ -409,6 +500,19 @@ enum Catalog {
                 // Motion.swift
                 static let progressiveButton = Animation.spring(response: 0.4, dampingFraction: 0.75)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "A single submit action with real latency — send, pay, upload. It keeps attention on the control the person just used instead of moving them somewhere else to wait.",
+                dos: [
+                    "Derive every visual property from one state value, so label, width and colour change together.",
+                    "Make the button inert while in flight. The animation is also the disabled state.",
+                    "Return to idle afterwards, so a second attempt doesn't require navigating away.",
+                ],
+                donts: [
+                    "Don't use it when the work is instant — a loading state that flashes reads as a glitch.",
+                    "Don't let the width change enough to move the layout around it.",
+                    "Don't hold the success state indefinitely. It stops being feedback and becomes the label.",
+                ]
+            ),
             kind: .progressiveButton
         ),
         MotionItem(
@@ -457,6 +561,19 @@ enum Catalog {
                 // Motion.swift
                 static let shimmerSweep = Animation.linear(duration: 1.1).repeatForever(autoreverses: false)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Content whose shape you already know before the data arrives — lists, cards, profiles. It sets the layout expectation during the wait.",
+                dos: [
+                    "Match the skeleton to the real content's shape and size, so nothing jumps when the data lands.",
+                    "Keep the sweep linear and one-directional.",
+                    "Use it for waits longer than about 300ms. Below that, show nothing at all.",
+                ],
+                donts: [
+                    "Don't use it when you don't know the shape of what's coming. A wrong skeleton is worse than a spinner.",
+                    "Don't shimmer more than a screenful — a whole page pulsing reads as an error state.",
+                    "Don't autoreverse the highlight. A sweep travelling backwards reads as undoing.",
+                ]
+            ),
             kind: .skeletonShimmer
         ),
         MotionItem(
@@ -496,6 +613,19 @@ enum Catalog {
                 // Motion.swift
                 static let spinnerRotate = Animation.linear(duration: 0.9).repeatForever(autoreverses: false)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Waits where you genuinely cannot report progress and don't know the shape of what's coming. It is the honest fallback, not the default choice.",
+                dos: [
+                    "Keep the rotation linear, so it doesn't appear to stumble once per turn.",
+                    "Place it where the content will appear, so the eye doesn't have to move when it does.",
+                    "Reserve it for short waits — a few seconds at most.",
+                ],
+                donts: [
+                    "Don't use a spinner when you can show real progress. A bar beats it every time.",
+                    "Don't leave one running past a few seconds with no message. It stops meaning 'working' and starts meaning 'stuck'.",
+                    "Don't ease the rotation. On a shape with no reference point, easing reads as stuttering.",
+                ]
+            ),
             kind: .spinner
         ),
         MotionItem(
@@ -540,6 +670,19 @@ enum Catalog {
                 // Motion.swift
                 static let progressBarFill = Animation.easeInOut(duration: 1.4)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Waits you can actually measure — uploads, downloads, multi-step jobs. Showing progress turns waiting into watching.",
+                dos: [
+                    "Tie the bar to real progress rather than to a guess about how long it will take.",
+                    "Grow it from the leading edge, so the direction matches reading direction.",
+                    "Let it reach full at the moment the work finishes.",
+                ],
+                donts: [
+                    "Don't use a spring. Overshooting past 100% is meaningless.",
+                    "Don't fake progress that then parks at 95% — that is worse than showing no bar at all.",
+                    "Don't use a determinate bar for indeterminate work. Use a spinner and be honest about not knowing.",
+                ]
+            ),
             kind: .progressBarFill
         ),
         MotionItem(
@@ -604,6 +747,19 @@ enum Catalog {
                 static let swipeSnap = Animation.spring(response: 0.35, dampingFraction: 0.8)
                 static let swipeRemove = Animation.easeIn(duration: 0.25)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Removing one item from a list, where the action is frequent enough to deserve a shortcut and recoverable enough to risk. Pair it with undo.",
+                dos: [
+                    "Track the finger with no animation at all while the drag is live.",
+                    "Put a haptic at the commit threshold, so the decision is felt before the finger lifts.",
+                    "Animate only on release — either snap back or complete the removal.",
+                ],
+                donts: [
+                    "Don't animate during the drag. Any curve puts the row behind the finger and the gesture stops feeling direct.",
+                    "Don't make a destructive action reachable only by swipe. It is invisible to anyone who doesn't try it.",
+                    "Don't set the threshold so short that an imprecise scroll becomes a delete.",
+                ]
+            ),
             kind: .swipeToDelete
         ),
         MotionItem(
@@ -655,6 +811,19 @@ enum Catalog {
                 // Motion.swift
                 static let refreshContentUpdate = Animation.easeOut(duration: 0.3)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Content the person expects to change and wants to check on their own terms — feeds, inboxes, lists. It hands them control instead of polling behind their back.",
+                dos: [
+                    "Let the system own the interaction. The rubber-band, the spinner and the retraction are already right.",
+                    "Make sure the scroll view can genuinely overscroll, or the gesture never engages at all.",
+                    "Show what changed once it completes, so the pull visibly did something.",
+                ],
+                donts: [
+                    "Don't add it to content that never changes. A gesture with no result teaches people to stop trying.",
+                    "Don't make it the only way to refresh — on its own it is undiscoverable.",
+                    "Don't hold the indicator up after the work is finished.",
+                ]
+            ),
             kind: .pullToRefresh
         ),
         MotionItem(
@@ -697,6 +866,19 @@ enum Catalog {
 
                 // No Motion.swift entry — the reorder animation belongs to List.
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Lists where the order is the person's decision and carries meaning — priorities, playlists, steps in a routine. If the order comes from the data, this is the wrong control.",
+                dos: [
+                    "Let the gap open under the dragged row before release, so the outcome is visible before it's committed.",
+                    "Let the system provide the lift, the shadow and the drop settle.",
+                    "Give reordering its own handle when the rows are also tappable.",
+                ],
+                donts: [
+                    "Don't use it on long lists. Dragging item 40 to the top is a miserable experience.",
+                    "Don't combine it with swipe actions on the same row without a handle — the two gestures compete for the same drag.",
+                    "Don't allow reordering whose effect the person can't see.",
+                ]
+            ),
             kind: .dragToReorder
         ),
         MotionItem(
@@ -763,6 +945,19 @@ enum Catalog {
                 // Motion.swift
                 static let modalContentReveal = Animation.spring(response: 0.4, dampingFraction: 0.8)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "A self-contained, interruptible task the person should be able to abandon — a filter panel, a compose form, a quick detail peek.",
+                dos: [
+                    "Use a detent shorter than full height. The content still visible behind it is what says 'temporary'.",
+                    "Let the system move the surface, and animate the content yourself, slightly later.",
+                    "Keep dismissal obvious and cheap: the drag, plus a visible control.",
+                ],
+                donts: [
+                    "Don't stack sheets. A modal over a modal loses any sense of where 'back' goes.",
+                    "Don't use a sheet for a step in a linear flow — that's a push.",
+                    "Don't animate the content on the same curve as the sheet. It rides up with the surface and the second beat is lost.",
+                ]
+            ),
             kind: .modalPresentation
         ),
         MotionItem(
@@ -814,6 +1009,19 @@ enum Catalog {
 
                 // No Motion.swift entry — iOS owns the curve for a zoom transition.
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Navigation where one element on screen becomes the subject of the next screen — a card to its detail, a thumbnail to its full image.",
+                dos: [
+                    "Make sure the source and destination really are the same content. The transition asserts that they are.",
+                    "Keep the element's aspect ratio close at both ends, so the interpolation doesn't visibly distort.",
+                    "Let it run in reverse on the way back, including a back-swipe the person interrupts halfway.",
+                ],
+                donts: [
+                    "Don't use it when the destination isn't about that element. It promises continuity you then break.",
+                    "Don't apply it to everything in a grid. If every card zooms, nothing is emphasised.",
+                    "Don't let it be the only hint that a card is tappable.",
+                ]
+            ),
             kind: .sharedElementPush
         ),
         MotionItem(
@@ -878,6 +1086,19 @@ enum Catalog {
                 // Motion.swift
                 static let radialReveal = Animation.easeOut(duration: 0.45)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "A change that should visibly originate from the person's touch — a theme switch, a panel expanding, a menu opening out of the button that summoned it.",
+                dos: [
+                    "Start the reveal at the touch point, not at the centre of the surface.",
+                    "Size the shape so it still covers everything when the touch lands in a corner.",
+                    "Bias it easeOut, so it leaves quickly and arrives gently.",
+                ],
+                donts: [
+                    "Don't use it for changes the person didn't trigger by touch. There is no origin to honour.",
+                    "Don't animate the origin itself — the opening should begin where the finger is, not slide there first.",
+                    "Don't run it across content that's being read. A full-surface wipe is impossible to ignore.",
+                ]
+            ),
             kind: .radialReveal
         ),
         MotionItem(
@@ -926,6 +1147,19 @@ enum Catalog {
                 static let staggerRow = Animation.spring(response: 0.4, dampingFraction: 0.8)
                 static let staggerDelayStep = 0.06
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "The first appearance of a short list, where the arrival should feel composed — onboarding steps, a menu, a small set of results.",
+                dos: [
+                    "Keep the step around 40–70ms: enough to read as a cascade, not enough to feel slow.",
+                    "Pair the fade with a small offset, so rows arrive rather than materialise.",
+                    "Cap the total. Stagger the first handful and bring the rest in together.",
+                ],
+                donts: [
+                    "Don't stagger long or scrolling lists. The last rows land after the person has started reading the first.",
+                    "Don't stagger content that updates often — re-cascading on every change is exhausting.",
+                    "Don't use it to disguise slow loading. It delays content that is already there.",
+                ]
+            ),
             kind: .staggeredListReveal
         ),
         MotionItem(
@@ -977,6 +1211,19 @@ enum Catalog {
                 // No Motion.swift entry — the timing lives in the keyframes, because each
                 // leg has its own duration.
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "An input the system refused, where the person needs to retry in place — a wrong passcode, an invalid field, a blocked action.",
+                dos: [
+                    "Keep it short and decaying: emphatic at the start, clearly finished at the end.",
+                    "Pair it with an error haptic. A refusal should be felt as well as seen.",
+                    "Leave the input intact, so retrying doesn't mean starting over.",
+                ],
+                donts: [
+                    "Don't shake without saying why. Motion signals the refusal; only text can explain it.",
+                    "Don't fire it during typing, before the person has submitted anything. That's nagging.",
+                    "Don't make it long or large. A rejection that's fun to trigger undermines its own message.",
+                ]
+            ),
             kind: .shakeToReject
         ),
         MotionItem(
@@ -1038,6 +1285,19 @@ enum Catalog {
                 static let holdFill = Animation.linear(duration: 1.2)
                 static let holdRelease = Animation.easeOut(duration: 0.25)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Destructive or irreversible actions where a confirmation dialog would just be dismissed reflexively — delete everything, end a call, authorise a transfer. The hold is the confirmation.",
+                dos: [
+                    "Match the fill duration to the gesture's threshold exactly, so the ring completing and the action firing are the same moment.",
+                    "Make releasing early visibly cancel — the ring has to retreat, not simply vanish.",
+                    "Keep the fill linear, so the time remaining isn't misrepresented.",
+                ],
+                donts: [
+                    "Don't use it for frequent actions. Deliberate friction is only worth it when the stakes are high.",
+                    "Don't require more than about 1.5s. Past that it reads as an unresponsive control.",
+                    "Don't use it without a progress indicator. A hold with no feedback is indistinguishable from a broken tap.",
+                ]
+            ),
             kind: .holdToConfirm
         ),
         MotionItem(
@@ -1093,6 +1353,19 @@ enum Catalog {
                 // Motion.swift
                 static let pinchSettle = Animation.spring(response: 0.35, dampingFraction: 0.7)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Content where scale is genuinely information — photos, maps, charts, documents. Not for content that simply happens to be small.",
+                dos: [
+                    "Assign the scale straight from the gesture, unanimated, while the fingers are down.",
+                    "Clamp the range, and let the content resist at the limits so the edge is legible.",
+                    "Animate only the settle back to rest once the fingers lift.",
+                ],
+                donts: [
+                    "Don't make it the only way to zoom. It's invisible, and it's unavailable to anyone using one hand.",
+                    "Don't animate during the pinch — any curve puts the content behind the fingers.",
+                    "Don't snap back instantly from a clamped limit. That reads as a bug rather than a boundary.",
+                ]
+            ),
             kind: .pinchToZoom
         ),
         MotionItem(
@@ -1151,6 +1424,19 @@ enum Catalog {
                 static let cardFlip = Animation.spring(response: 0.55, dampingFraction: 0.85)
                 static let cardFaceSwap = Animation.linear(duration: 0.01).delay(0.22)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Two faces of one object, where the relationship really is front-and-back — a card and its details, a question and its answer, a chart and its numbers.",
+                dos: [
+                    "Add perspective, or the flip reads as a horizontal squash rather than a rotation.",
+                    "Swap the faces while the card is edge-on, not gradually across the whole turn.",
+                    "Keep both faces the same size, so it stays one object rather than two.",
+                ],
+                donts: [
+                    "Don't use it to navigate between unrelated screens. A flip claims the two sides belong to each other.",
+                    "Don't flip anything text-heavy — it's unreadable mid-turn and slow to get back to.",
+                    "Don't trigger it on hover or scroll. It needs a deliberate action.",
+                ]
+            ),
             kind: .cardFlip
         ),
         MotionItem(
@@ -1219,6 +1505,19 @@ enum Catalog {
                 static let toastIn = Animation.spring(response: 0.4, dampingFraction: 0.8)
                 static let toastOut = Animation.easeIn(duration: 0.25)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Confirming something that already succeeded and needs no response — saved, copied, sent, undone.",
+                dos: [
+                    "Come in from an edge and leave the same way, so the direction explains where it went.",
+                    "Combine the movement with a fade. Movement alone reads mechanical.",
+                    "Auto-dismiss, and keep it brief enough that nobody needs to dismiss it themselves.",
+                ],
+                donts: [
+                    "Don't put a required action in a toast. Anything that must be dealt with needs a surface that waits.",
+                    "Don't cover the control the person just used.",
+                    "Don't queue several. A stack of toasts means they're being used to say too much.",
+                ]
+            ),
             kind: .toastSlideIn
         ),
         MotionItem(
@@ -1270,6 +1569,19 @@ enum Catalog {
                 // Motion.swift
                 static let breathingPulse = Animation.easeInOut(duration: 0.9).repeatForever(autoreverses: true)
                 """#,
+            guidance: DesignGuidance(
+                whenToUse: "Ongoing ambient states with no measurable progress and no fixed end — listening, recording, connecting, a live indicator.",
+                dos: [
+                    "Autoreverse it. Unlike a spinner or a sweep, a pulse has no direction to contradict.",
+                    "Use easeInOut, so it slows at each extreme and reads as breathing.",
+                    "Keep the amplitude small. This is a background signal, not an announcement.",
+                ],
+                donts: [
+                    "Don't use it for determinate work. If you can show progress, show progress.",
+                    "Don't pulse several things at once — the screen starts to read as unstable.",
+                    "Don't make it fast. A quick pulse reads as an alarm rather than a steady state.",
+                ]
+            ),
             kind: .breathingPulse
         ),
     ]

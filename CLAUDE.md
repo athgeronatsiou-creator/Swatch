@@ -83,4 +83,12 @@ Verified in the Simulator on all three tabs: Library All (six sections in order,
 
 Known redundancy, left deliberately: `MotionCardView` still prints the category under every title, which now repeats the section header above it. Removing it in grouped mode would look cleaner but F1's acceptance criteria say each card shows title *and* category, so that's a spec change rather than a tidy-up — worth deciding on, not worth doing silently.
 
+The detail screen now carries design guidance as well as documentation. `MotionItem` gained `guidance: DesignGuidance`, a small struct of `whenToUse` plus `dos` and `donts` string arrays — structured rather than prose so the screen can render the lists as scannable rows with green `checkmark.circle.fill` / red `xmark.circle.fill`. All 24 are populated with motion-specific guidance, not boilerplate. Rows use `.firstTextBaseline` alignment so the icon sits on the first line of wrapped text rather than floating in the middle of it.
+
+It renders as a third collapsed `DisclosureGroup`, and it is placed **above** Documentation and Code on purpose: the reading order is now what it is, then whether to use it, then how it works, then the code — practical guidance before theory, for an audience that is choosing motions more often than implementing them. Two adjacent lines in `DetailView.notes` if that order should change.
+
+Re-checked the pull-to-refresh special case with three sections rather than two: the 320pt capped notes region still reaches all of them, and the expanded guidance scrolls inside it while the List above keeps its own position. That bounded-sibling layout is holding up as sections get added, but it is the thing to re-check if a fourth ever appears.
+
+Open question, deliberately not decided: `MotionItem.shareText` still contains title, category, description, concept note and code — the format that was specified when sharing was added, so it does not include the guidance. The dos and don'ts are arguably the most useful thing to send a colleague, so this is worth revisiting; it was left alone rather than quietly redefined.
+
 Next up if continuing: manual gesture pass on Pinch to zoom (highest priority — genuinely unverified), then Swipe to delete / Drag to reorder / Modal presentation, then the PRD's final step (screen recording, README, repo tidy). Also worth revisiting: with 24 motions the PRD's §6 shortlist tables are now well behind the actual catalogue.
