@@ -33,5 +33,28 @@ struct MotionItem: Identifiable, Hashable {
     let symbolName: String
     let description: String
     let conceptNote: String
+    /// The long-form explanation: how the motion is built and why it is built that way.
+    let documentation: String
+    /// The motion's key SwiftUI logic, copied from its own file as plain text.
+    let sourceSnippet: String
     let kind: MotionKind
+}
+
+extension MotionItem {
+    /// Plain-text summary shared by the detail screen's `ShareLink`.
+    var shareText: String {
+        """
+        \(title) — \(category)
+
+        \(description)
+
+        CONCEPT
+        \(conceptNote)
+
+        CODE
+        \(sourceSnippet)
+
+        Shared from Swatch, a SwiftUI motion library.
+        """
+    }
 }

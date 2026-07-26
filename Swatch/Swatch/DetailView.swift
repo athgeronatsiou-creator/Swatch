@@ -12,14 +12,16 @@ struct DetailView: View {
 
     @EnvironmentObject private var favorites: FavoritesStore
 
+    @State private var isDocumentationExpanded = false
+    @State private var isCodeExpanded = false
+
     var body: some View {
         Group {
             if stageOwnsVerticalDrag {
                 // Pull to refresh needs to own the vertical drag, so this screen lays out
-                // without an enclosing ScrollView competing for it. Its content fits on
-                // one portrait screen. (`.scrollDisabled` is not an alternative here: it
-                // sets an environment value that propagates down and switches the stage's
-                // own list off too.)
+                // without an enclosing ScrollView competing for it. (`.scrollDisabled` is
+                // not an alternative here: it sets an environment value that propagates
+                // down and switches the stage's own list off too.)
                 detailContent
             } else {
                 ScrollView {
@@ -30,6 +32,11 @@ struct DetailView: View {
         .navigationTitle(item.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                ShareLink(item: item.shareText, subject: Text(item.title)) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     favorites.toggle(item.id)
@@ -42,23 +49,46 @@ struct DetailView: View {
 
     private var detailContent: some View {
         VStack(spacing: 24) {
-            Group {
-                if stageOwnsVerticalDrag {
-                    // The usual fixed-height-plus-clip box breaks this one: `.clipped()`
-                    // only crops a List visually, it doesn't shorten it, so the List never
-                    // overflows, never bounces, and pull to refresh has nothing to grab.
-                    // Giving it the spare height means it scrolls for real.
-                    stageView
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    stageView
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 220)
-                        .clipped()
-                }
-            }
-            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 28))
+            stage
 
+            if stageOwnsVerticalDrag {
+                // The notes can't just sit in the VStack on this one screen: with no
+                // enclosing ScrollView, an expanded section would run off the bottom with
+                // no way to reach it. Its own bounded scroll view fixes that, and being a
+                // *sibling* of the stage rather than a parent of it means it never competes
+                // for the stage's vertical drag.
+                ScrollView {
+                    notes
+                }
+                .frame(maxHeight: 320)
+            } else {
+                notes
+            }
+        }
+        .padding()
+    }
+
+    private var stage: some View {
+        Group {
+            if stageOwnsVerticalDrag {
+                // The usual fixed-height-plus-clip box breaks this one: `.clipped()`
+                // only crops a List visually, it doesn't shorten it, so the List never
+                // overflows, never bounces, and pull to refresh has nothing to grab.
+                // Giving it the spare height means it scrolls for real.
+                stageView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                stageView
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 220)
+                    .clipped()
+            }
+        }
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 28))
+    }
+
+    private var notes: some View {
+        VStack(spacing: 24) {
             Text(instruction)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -78,8 +108,66 @@ struct DetailView: View {
                     .background(Color(.tertiarySystemBackground), in: Capsule())
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+
+            documentationSection
+            codeSection
         }
-        .padding()
+    }
+
+    private var documentationSection: some View {
+        expandableSection(
+            title: "Documentation",
+            systemImage: "text.alignleft",
+            isExpanded: $isDocumentationExpanded
+        ) {
+            Text(item.documentation)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .sensoryFeedback(.impact(weight: .light), trigger: isDocumentationExpanded)
+    }
+
+    private var codeSection: some View {
+        expandableSection(
+            title: "Code",
+            systemImage: "chevron.left.forwardslash.chevron.right",
+            isExpanded: $isCodeExpanded
+        ) {
+            // Deliberately plain: one monospaced Text in the primary colour, no
+            // highlighting and nothing parsing the snippet. Code lines are wider than the
+            // screen, so they scroll sideways rather than wrap into nonsense.
+            ScrollView(.horizontal, showsIndicators: false) {
+                Text(item.sourceSnippet)
+                    .font(.system(.caption2, design: .monospaced))
+                    .foregroundStyle(.primary)
+                    .textSelection(.enabled)
+            }
+        }
+        .sensoryFeedback(.impact(weight: .light), trigger: isCodeExpanded)
+    }
+
+    /// A collapsed-by-default section that expands in place. `DisclosureGroup` is the stock
+    /// control for this, and it animates its own open/close, so there is no motion to write.
+    private func expandableSection<Content: View>(
+        title: String,
+        systemImage: String,
+        isExpanded: Binding<Bool>,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        // Built up front rather than inside the group: `DisclosureGroup` holds on to its
+        // content, so passing the closure straight through would need it to escape.
+        let expandedContent = content()
+
+        return DisclosureGroup(isExpanded: isExpanded) {
+            expandedContent
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 12)
+        } label: {
+            Label(title, systemImage: systemImage)
+                .font(.headline)
+        }
+        .padding(16)
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20))
     }
 
     @ViewBuilder
