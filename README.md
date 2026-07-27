@@ -2,9 +2,9 @@
 
 A native iOS app cataloguing UI micro-interactions — rendered live in SwiftUI, so the timing and feel can be experienced on a real device instead of watched as a flattened video.
 
-<!-- Replace this line with your screen recording, once converted:
-![Swatch demo](docs/demo.gif)
--->
+[Swatch demo](Media/swatch-demo.gif)
+
+[Full demo (46s, mp4)](Media/swatch-demo.mp4)
 
 ## Why this exists
 
